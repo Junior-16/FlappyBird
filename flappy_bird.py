@@ -18,37 +18,40 @@ class Game(object):
         self.running = True
         self.move = True
         self.fps = pg.time.Clock()
+        self.pipe_list = []
+        self.pipe_to_show = []
 
     #Instantiate the objects that will compose the game
     def composition(self):
         #Create the object which represents the initial game interface
+        #Bird just fly to up and down and the clouds float in the sky
         self.init_surface = Initial_Surface(self.screen)
         #Creates the object bird
         self.bird = Bird(self.screen)
-        #Create object cloud
+        #Create object cloud in the position x=200,y=10
         self.cloud1 = Cloud(self.screen, 200, 10)
-        #Create object cloud with a different image
+        #Create object cloud
         self.cloud2 = Cloud(self.screen, 760, 100)
 
-    #Esse __main__ não faz parte do objeto jogo
-    def play(self):
-        #A surface deve ser a primeira imagem a ser mostrada
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                exit()#Exit de Game
-            if event.type == pg.KEYUP:
-                if event.key == pg.K_SPACE:
-                    self.begin = True
-                    self.bird.jump()
-        if self.begin == True:
-            #time.sleep(0.007)
-            self.bird.fall()
-        if self.begin == False:
-            #time.sleep(0.006)
-            self.bird.moves()
-        self.bird.show()
-        self.display.flip()
-        self.display.update()
+        #Creates object Pipe, with opening=150, x=820
+
+        self.pipe1 = Pipe(self.screen, 150, 820)
+        self.pipe2 = Pipe(self.screen, 150, 820)
+        self.pipe3 = Pipe(self.screen, 150, 820)
+        self.pipe4 = Pipe(self.screen, 150, 820)
+        #self.pipe_list.append(self.pipe1, self.pipe2, self.pipe3, self.pipe4)
+
+    def move_play_surface(self):
+        self.pipe1.moves()
+        self.pipe2.moves()
+        self.pipe3.moves()
+        self.pipe4.moves()
+
+    def show_play_surface(self):
+        self.pipe1.show()
+        self.pipe2.show()
+        self.pipe3.show()
+        self.pipe4.show()
 
     def move_game_surface(self):
         self.init_surface.moves()
@@ -81,8 +84,8 @@ class Initial_Surface():
         if self.xbar1 == -766:
             self.xbar1 = 768
         else:
-            self.xbar -= 1
-            self.xbar1 -= 1
+            self.xbar -= 2
+            self.xbar1 -= 2
         #self.bar.scroll(self.xbar, 385)
         #self.bar1.scroll(self.xbar1, 385)
 
@@ -113,9 +116,7 @@ class Bird():
         self.birdy += 1
 
     def jump(self):
-        for el in range(15):
-            self.birdy -= 2
-            self.show()#Atualizar em cada interação pra dar a impressão do bird estar subindo
+        self.birdy -= 30
 
 class Cloud():
     def __init__(self,screen, x, y):
@@ -134,13 +135,54 @@ class Cloud():
         else:
             self.xcloud -= 1
         #self.cloud.scroll(self.xsun, self.ysun)
-game = Game()
-game.composition()
+
+#Class that creates the pipes - Bird obstacles
+class Pipe():
+    def __init__(self, screen, opening, x):
+        self.screen = screen
+        self.pipe_down = pg.image.load(random.choice(["Images/pipe_down1.png","Images/pipe_down2.png","Images/pipe_down3.png"])).convert_alpha()
+        self.pipe_up = pg.image.load("Images/pipe_up.png")
+        #Atributes about the position of the pipes
+        self.pipe_xdown = x
+        #386 is the y value that represents the floor
+        self.pipe_ydown = (386 - self.pipe_down.get_height())
+        self.pipe_xup = x
+        self.pipe_yup = (self.pipe_ydown - opening - self.pipe_up.get_height())
+
+    def show(self):
+        self.screen.blit(self.pipe_down, (self.pipe_xdown, self.pipe_ydown))#put pipe down
+        self.screen.blit(self.pipe_up, (self.pipe_xup, self.pipe_yup))#put pipe up
+
+    def moves(self):
+        if self.pipe_xdown < -52 and self.pipe_xup < -52:
+            self.pipe_xup = 820
+            self.pipe_xdown = 820
+        else:
+            self.pipe_xdown -= 2
+            self.pipe_xup -= 2
+
+#This block of code start the game
+game = Game()#Create the object Game
+game.composition()#Call the method/function composition
 while game.running:
-    game.fps.tick(80)
+    game.fps.tick(90)
     if game.move:
         game.move_game_surface()
-    else:
-        continue
-        #implementation of end game all that shit
-    game.play()
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            exit()#Exit de Game
+        if event.type == pg.KEYUP:
+            if event.key == pg.K_SPACE and game.move == True:
+                game.begin = True
+                game.bird.jump()
+    if game.bird.birdy == 350:
+        game.move = False
+        game.show_play_surface()
+    if game.begin == True and game.move == True:
+        game.bird.fall()
+        game.move_play_surface()
+        game.show_play_surface()
+    if game.begin == False:
+        game.bird.moves()
+    game.bird.show()
+    game.display.flip()
