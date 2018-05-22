@@ -34,24 +34,41 @@ class Game(object):
         self.cloud2 = Cloud(self.screen, 760, 100)
 
         #Creates object Pipe, with opening=150, x=820
-
-        self.pipe1 = Pipe(self.screen, 150, 820)
-        self.pipe2 = Pipe(self.screen, 150, 820)
-        self.pipe3 = Pipe(self.screen, 150, 820)
-        self.pipe4 = Pipe(self.screen, 150, 820)
-        #self.pipe_list.append(self.pipe1, self.pipe2, self.pipe3, self.pipe4)
+        self.pipe1 = Pipe(self.screen, 120, 820)
+        self.pipe2 = Pipe(self.screen, 120, 820)
+        self.pipe3 = Pipe(self.screen, 120, 820)
+        self.pipe4 = Pipe(self.screen, 120, 820)
+        self.pipe5 = Pipe(self.screen, 120, 820)
+        self.pipe6 = Pipe(self.screen, 120, 820)
+        self.pipe_to_show.append(self.pipe1)
+        self.pipe_list.append(self.pipe2)
+        self.pipe_list.append(self.pipe3)
+        self.pipe_list.append(self.pipe4)
+        self.pipe_list.append(self.pipe5)
+        self.pipe_list.append(self.pipe6)
 
     def move_play_surface(self):
-        self.pipe1.moves()
-        self.pipe2.moves()
-        self.pipe3.moves()
-        self.pipe4.moves()
+        for pipe in self.pipe_to_show:
+            pipe.moves()
+            pipe.show()
 
-    def show_play_surface(self):
-        self.pipe1.show()
-        self.pipe2.show()
-        self.pipe3.show()
-        self.pipe4.show()
+    def show_pipes(self):
+        for pipe in self.pipe_to_show:
+            pipe.show()
+
+    def generate_pipe(self):
+        #Take the last object of the list
+        if self.pipe_to_show[-1].pipe_xdown == 664:
+            self.pipe_to_show.append(random.choice(self.pipe_list))
+            #remove the elemet that was add in the list to show
+            #Index -1 to get the last element
+            self.pipe_list.remove(self.pipe_to_show[-1])
+        if self.pipe_to_show[0].pipe_xdown < -52:
+            self.pipe_to_show[0].pipe_xdown = 820
+            self.pipe_to_show[0].pipe_xup = 820
+            self.pipe_to_show[0].pipe_yup += 1
+            self.pipe_list.append(self.pipe_to_show[0])
+            self.pipe_to_show.remove(self.pipe_list[-1])
 
     def move_game_surface(self):
         self.init_surface.moves()
@@ -64,7 +81,6 @@ class Game(object):
         self.cloud1.show()
 
 class Initial_Surface():
-
     def __init__(self, screen):
         self.screen = screen
         self.xbar = 0
@@ -80,7 +96,7 @@ class Initial_Surface():
 
     def moves(self):
         if self.xbar == -766:
-            self.xbar  = 768
+            self.xbar = 768
         if self.xbar1 == -766:
             self.xbar1 = 768
         else:
@@ -177,11 +193,11 @@ while game.running:
                 game.bird.jump()
     if game.bird.birdy == 350:
         game.move = False
-        game.show_play_surface()
+        game.show_pipes()
     if game.begin == True and game.move == True:
         game.bird.fall()
+        game.generate_pipe()
         game.move_play_surface()
-        game.show_play_surface()
     if game.begin == False:
         game.bird.moves()
     game.bird.show()
