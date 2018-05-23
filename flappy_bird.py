@@ -33,7 +33,7 @@ class Game(object):
         #Create object cloud
         self.cloud2 = Cloud(self.screen, 760, 100)
 
-        #Creates object Pipe, with opening=150, x=820
+        #Creates object Pipe, with opening=150 (space to the bird pass through), x=820
         self.pipe1 = Pipe(self.screen, 120, 820)
         self.pipe2 = Pipe(self.screen, 120, 820)
         self.pipe3 = Pipe(self.screen, 120, 820)
@@ -58,15 +58,16 @@ class Game(object):
 
     def generate_pipe(self):
         #Take the last object of the list
-        if self.pipe_to_show[-1].pipe_xdown == 664:
+        if self.pipe_to_show[-1].pipe_down_rect.x == 664:
             self.pipe_to_show.append(random.choice(self.pipe_list))
             #remove the elemet that was add in the list to show
             #Index -1 to get the last element
             self.pipe_list.remove(self.pipe_to_show[-1])
-        if self.pipe_to_show[0].pipe_xdown < -52:
-            self.pipe_to_show[0].pipe_xdown = 820
-            self.pipe_to_show[0].pipe_xup = 820
-            self.pipe_to_show[0].pipe_yup += 1
+        if self.pipe_to_show[0].pipe_down_rect.x < -52:
+            self.pipe_to_show[0].pipe_down_rect.x = 820
+            self.pipe_to_show[0].pipe_up_rect.x = 820
+            #The code line below decreases the size of hte opening
+            self.pipe_to_show[0].pipe_up_rect.y += 1
             self.pipe_list.append(self.pipe_to_show[0])
             self.pipe_to_show.remove(self.pipe_list[-1])
 
@@ -79,6 +80,18 @@ class Game(object):
 
         self.cloud1.moves()
         self.cloud1.show()
+
+    #Check if the bird is colliding with the pipe up and the pipe down
+    def collide(self):
+        try:
+            pipe = self.pipe_to_show[1]
+        except IndexError:
+            pipe = self.pipe_to_show[0]
+        if pipe.pipe_down_rect.x >= 130 or pipe.pipe_down_rect.x <= 192:
+            if self.bird.bird_rect.colliderect(pipe.pipe_up_rect) or self.bird.bird_rect.colliderect(pipe.pipe_down_rect):
+                return True
+        else:
+            return False
 
 class Initial_Surface():
     def __init__(self, screen):
@@ -108,31 +121,32 @@ class Initial_Surface():
 class Bird():
     def __init__(self, screen):
         self.screen = screen
-        self.birdx = 130
-        self.birdy = 200
         self.fly = 0
         self.bird = pg.image.load("Images/bird.png").convert_alpha()
+        self.bird_rect = self.bird.get_rect()
+        self.bird_rect.x = 130
+        self.bird_rect.y = 200
 
     def show(self):
-        self.screen.blit(self.bird, (self.birdx, self.birdy))#put the bird
+        self.screen.blit(self.bird, self.bird_rect)#put the bird
 
     def moves(self):
         #time.sleep(0.002)
         if self.fly == 0:
-            self.birdy -= 1
-        if self.birdy == 190:
+            self.bird_rect.y -= 1
+        if self.bird_rect.y == 190:
             self.fly = 1
         if self.fly == 1:
-            self.birdy += 1
-        if self.birdy == 230:
+            self.bird_rect.y += 1
+        if self.bird_rect.y == 230:
             self.fly = 0
 
     #Faz o bird cair
     def fall(self):
-        self.birdy += 1
+        self.bird_rect.y += 1
 
     def jump(self):
-        self.birdy -= 30
+        self.bird_rect.y -= 30
 
 class Cloud():
     def __init__(self,screen, x, y):
@@ -158,24 +172,27 @@ class Pipe():
         self.screen = screen
         self.pipe_down = pg.image.load(random.choice(["Images/pipe_down1.png","Images/pipe_down2.png","Images/pipe_down3.png"])).convert_alpha()
         self.pipe_up = pg.image.load("Images/pipe_up.png")
+
+        self.pipe_down_rect = self.pipe_down.get_rect()
+        self.pipe_up_rect = self.pipe_up.get_rect()
         #Atributes about the position of the pipes
-        self.pipe_xdown = x
+        self.pipe_down_rect.x = x
+        self.pipe_up_rect.x = x
         #386 is the y value that represents the floor
-        self.pipe_ydown = (386 - self.pipe_down.get_height())
-        self.pipe_xup = x
-        self.pipe_yup = (self.pipe_ydown - opening - self.pipe_up.get_height())
+        self.pipe_down_rect.y = (386 - self.pipe_down.get_height())
+        self.pipe_up_rect.y = (self.pipe_down_rect.y - opening - self.pipe_up.get_height())
 
     def show(self):
-        self.screen.blit(self.pipe_down, (self.pipe_xdown, self.pipe_ydown))#put pipe down
-        self.screen.blit(self.pipe_up, (self.pipe_xup, self.pipe_yup))#put pipe up
+        self.screen.blit(self.pipe_down, self.pipe_down_rect)#put pipe down
+        self.screen.blit(self.pipe_up, self.pipe_up_rect)#put pipe up
 
     def moves(self):
-        if self.pipe_xdown < -52 and self.pipe_xup < -52:
-            self.pipe_xup = 820
-            self.pipe_xdown = 820
+        if self.pipe_down_rect.x < -52 and self.pipe_up_rect.x < -52:
+            self.pipe_down_rect.x = 820
+            self.pipe_up_rect.x = 820
         else:
-            self.pipe_xdown -= 2
-            self.pipe_xup -= 2
+            self.pipe_down_rect.x -= 2
+            self.pipe_up_rect.x -= 2
 
 #This block of code start the game
 game = Game()#Create the object Game
@@ -191,13 +208,20 @@ while game.running:
             if event.key == pg.K_SPACE and game.move == True:
                 game.begin = True
                 game.bird.jump()
-    if game.bird.birdy == 350:
+
+    if game.collide():
+        #Set game.move = False to stop the play_surface
+        game.move = False
+        game.show_pipes()
+    #Check if the bird touch the floor
+    if game.bird.bird_rect.y == 350:
         game.move = False
         game.show_pipes()
     if game.begin == True and game.move == True:
         game.bird.fall()
         game.generate_pipe()
         game.move_play_surface()
+    #Check if the bird is'nt start
     if game.begin == False:
         game.bird.moves()
     game.bird.show()
