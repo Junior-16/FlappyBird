@@ -27,6 +27,8 @@ while game.running:
         game.move_game_surface()
         game.show_game_surface()
         game.bird.show()
+        ## TODO: Init message
+        #Call the init message here
     else:
         #Check if the bird hit the floor
         if game.bird.bird.rect.y == 350:
@@ -41,6 +43,8 @@ while game.running:
                 game.bird.show()
                 game.display.flip()
             game.begin = False
+            ## TODO: End_message
+            #Call here the end game message
 
         #Make the bird fall if a command do jump is no given
         if game.bird_climb == False and game.begin == True:

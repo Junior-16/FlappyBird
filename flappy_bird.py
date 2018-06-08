@@ -6,14 +6,20 @@ import random
 class Game(object):
     #Initialize the pygame module and others atributes
     def __init__(self):
+        #Atributes of the pygame settings
         pg.init()
         self.display = pg.display
+        pg.font.init()#Init the font to write in the screen
+        self.font = pg.font.SysFont('Ubuntu Mono', 30)
         self.dimentions = (768,489)
         self.display.set_mode(self.dimentions, 0)
         self.display.set_caption("Flappy Bird")
         self.icon = pg.image.load("Images/ico.png").convert_alpha()
         self.display.set_icon(self.icon)
         self.screen = pg.display.get_surface()#get the surface
+
+        #Atributes of the game control
+        self.init_message = self.font.render('Press Space to Begin', False, (0, 0, 0))
         self.begin = False
         self.running = True
         self.move = True
@@ -119,6 +125,11 @@ class Game(object):
         #Add just one pipe to be showed
         self.pipe_to_show.append(el)
         self.pipe_list.remove(el)
+
+    #Write the code here
+    #def init_message(self):
+
+    #def end_message(self):
 
 class Initial_Surface():
     def __init__(self, screen):
