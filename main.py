@@ -27,7 +27,7 @@ while game.running:
         game.move_game_surface()
         game.show_game_surface()
         game.bird.show()
-        ## TODO: Init message
+        ## TODO: Init messa
         #Call the init message here
     else:
         #Check if the bird hit the floor
@@ -39,6 +39,7 @@ while game.running:
             while game.bird.bird.rect.y < 350:
                 game.show_game_surface()
                 game.show_pipes()
+                game.score.show()
                 game.bird.fall()
                 game.bird.show()
                 game.display.flip()
@@ -63,6 +64,8 @@ while game.running:
             game.move_game_surface()
             game.show_game_surface()
             game.move_play_surface()
+            game.check_score()
+            game.score.show()
             game.bird.show()
 
     #Pygame method required to update the screen

@@ -41,15 +41,16 @@ class Game(object):
         self.cloud1 = Cloud(self.screen, 200, 10)
         #Create object cloud
         self.cloud2 = Cloud(self.screen, 760, 100)
+        self.score = Score(self.screen)
 
         #Creates object Pipe, with opening=120 (space to the bird pass through), x=820
-        self.pipe1 = Pipe(self.screen, 120, 820)
-        self.pipe2 = Pipe(self.screen, 120, 820)
-        self.pipe3 = Pipe(self.screen, 120, 820)
-        self.pipe4 = Pipe(self.screen, 120, 820)
-        self.pipe5 = Pipe(self.screen, 120, 820)
-        self.pipe6 = Pipe(self.screen, 120, 820)
-        self.pipe7 = Pipe(self.screen, 120, 820)
+        self.pipe1 = Pipe(self.screen, 100, 820)
+        self.pipe2 = Pipe(self.screen, 100, 820)
+        self.pipe3 = Pipe(self.screen, 100, 820)
+        self.pipe4 = Pipe(self.screen, 100, 820)
+        self.pipe5 = Pipe(self.screen, 100, 820)
+        self.pipe6 = Pipe(self.screen, 100, 820)
+        self.pipe7 = Pipe(self.screen, 100, 820)
         self.pipe_to_show.append(self.pipe1)#First pipe that is showed
         self.pipe_group.add(self.pipe1.pipe_up, self.pipe1.pipe_down)
         self.pipe_list.append(self.pipe2)
@@ -102,29 +103,47 @@ class Game(object):
         self.init_surface.show()
         self.cloud2.show()
         self.cloud1.show()
+        self.score.show()
 
 
     #Check if the bird is colliding with the sprite_group that contains the pipes
     def collide(self):
         if pg.sprite.spritecollideany(self.bird.bird, self.pipe_group) != None:
+            x = self.bird.bird.rect.x
+            y = self.bird.bird.rect.y
+            self.bird.bird.image = self.bird.bird_end
+            self.bird.rect = self.bird.bird_end_rect
+            self.bird.rect.x = x
+            self.bird.rect.y = y
             return True
         else:
             return False
 
     def restart(self):
         #Set the bird to your initial position
-        self.bird.bird.rect.x = 130
-        self.bird.bird.rect.y = 200
+        self.bird.bird.image = self.bird.bird_init
+        self.bird.bird.rect = pg.Rect((130, 200), (48, 32))
+        self.score.num_to_show = [self.score.num0]
+        self.score.score = 0
         #Set each pipe to yours initials positions
         for el in self.pipe_to_show:
             el.pipe_down.rect.x = 820
             el.pipe_up.rect.x = 820
+            el.pipe_up.rect.y -= 5 #increase the opening of the pipes
             self.pipe_list.append(el)
         #Remove al pipes os the list
         self.pipe_to_show.clear()
         #Add just one pipe to be showed
         self.pipe_to_show.append(el)
         self.pipe_list.remove(el)
+
+    def check_score(self):
+        if len(self.pipe_to_show) <= 5:
+            if self.pipe_to_show[0].pipe_down.rect.x + 52 == 130:
+                self.score.increase()
+        else:
+            if self.pipe_to_show[1].pipe_down.rect.x + 52 == 130:
+                self.score.increase()
 
     #Write the code here
     #def init_message(self):
@@ -159,7 +178,10 @@ class Bird():
         self.screen = screen
         self.fly = 0
         self.bird = pg.sprite.Sprite()
-        self.bird.image = pg.image.load("Images/bird1.png").convert_alpha()
+        self.bird_end = pg.image.load("Images/bird_end.png").convert_alpha()
+        self.bird_end_rect = self.bird_end.get_rect()
+        self.bird_init = pg.image.load("Images/bird1.png").convert_alpha()
+        self.bird.image = self.bird_init
         self.bird.rect = pg.Rect((130, 200), (48, 32))
 
     def show(self):
@@ -228,3 +250,36 @@ class Pipe():
     def moves(self):
         self.pipe_down.rect.x -= 2
         self.pipe_up.rect.x -= 2
+
+
+class Score(object):
+    def __init__(self, screen):
+        self.screen = screen
+        self.num0 = pg.image.load("Images/0.png")
+        self.num1 = pg.image.load("Images/1.png")
+        self.num2 = pg.image.load("Images/2.png")
+        self.num3 = pg.image.load("Images/3.png")
+        self.num4 = pg.image.load("Images/4.png")
+        self.num5 = pg.image.load("Images/5.png")
+        self.num6 = pg.image.load("Images/6.png")
+        self.num7 = pg.image.load("Images/7.png")
+        self.num8 = pg.image.load("Images/8.png")
+        self.num9= pg.image.load("Images/9.png")
+        self.num_list = [self.num0,self.num1,self.num2,self.num3,
+                        self.num4,self.num5,self.num6,self.num7,
+                        self.num8,self.num9]
+        self.num_to_show = [self.num0]
+        self.num_x = 336
+        self.score = 0
+
+    def increase(self):
+        self.score += 1
+        self.num_to_show = []
+        for i in str(self.score):
+            self.num_to_show.append(self.num_list[int(i)])
+
+    def show(self):
+        for num in self.num_to_show:
+            self.screen.blit(num, (self.num_x, 100))
+            self.num_x += 25#
+        self.num_x = 336
