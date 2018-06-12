@@ -10,7 +10,7 @@ while game.running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             exit()#Exit de Game
-        if event.type == pg.KEYUP or event.type == pg.KEYDOWN:
+        if event.type == pg.KEYUP:
             if event.key == pg.K_SPACE:
                 game.begin = True
                 game.move = False
@@ -31,7 +31,7 @@ while game.running:
         #Call the init message here
     else:
         #Check if the bird hit the floor
-        if game.bird.bird.rect.y == 350:
+        if game.bird.bird.rect.y >= 350:
             game.begin = False
 
         if game.collide():
@@ -56,7 +56,7 @@ while game.running:
             game.bird.jump()
             climb += 1
             #Bird will move up for 15 iterations
-            if climb == 20:
+            if climb == 13:
                 climb = 0
                 game.bird_climb = False
         if game.begin == True:

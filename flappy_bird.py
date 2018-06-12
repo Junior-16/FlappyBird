@@ -90,7 +90,8 @@ class Game(object):
             self.pipe_to_show[0].pipe_down.rect.x = 820
             self.pipe_to_show[0].pipe_up.rect.x = 820
             #The code line below decreases the size of the opening of the pipe
-            self.pipe_to_show[0].pipe_up.rect.y += 1
+            #The decrease is bases in the score of the game
+            self.pipe_to_show[0].pipe_up.rect.y += int(self.score.score / 2)
             self.pipe_list.append(self.pipe_to_show[0])
             self.pipe_to_show.remove(self.pipe_list[-1])
 
@@ -203,7 +204,7 @@ class Bird():
         self.bird.rect.y += 2
 
     def jump(self):
-        self.bird.rect.y -= 2
+        self.bird.rect.y -= 3
 
 class Cloud():
     def __init__(self,screen, x, y):
