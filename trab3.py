@@ -1,6 +1,12 @@
-from flappy_bird import *#import the file flappy_bird.py
+from flappy_bird import *
 import pygame as pg
-#This block of code start the game
+
+#Autor: Damas Serius; e-mail:seriusdamas@gmail.com
+#Autor: Junior Vitor Ramisch; e-mail: junior.ramisch@gmail.com
+#Esse arquivo .py instancia as classes do arquivo flappy_bird.py
+#para iniciar o jogo flappy bird
+#Github link: https://github.com/Junior-16/FlappyBird
+
 game = Game()#Create the object Game
 game.composition()#Call the method/function composition
 game.create_sprite_group()
@@ -12,9 +18,11 @@ while game.running:
             exit()#Exit de Game
         if event.type == pg.KEYUP:
             if event.key == pg.K_SPACE:
-                game.begin = True
-                game.move = False
+                if game.move:#Chech if the bird is moving(up and down)
+                    game.begin = True
+                    game.move = False
                 game.bird_climb = True
+                climb = 0
             if event.key == pg.K_ESCAPE:
                 exit()#Exit the game if the esc is press
             if event.key == pg.K_r:
@@ -27,14 +35,17 @@ while game.running:
         game.move_game_surface()
         game.show_game_surface()
         game.bird.show()
-        ## TODO: Init messa
-        #Call the init message here
+        game.game_start()#Show the initial message
+
     else:
         #Check if the bird hit the floor
         if game.bird.bird.rect.y >= 350:
             game.begin = False
+            game.game_over()
 
-        if game.collide():
+        #check the collision and if the bird hit the roof
+        if game.collide() or game.bird.bird.rect.y < 0:
+            game.end_game()
             #This loop makes the bird fall to the ground
             while game.bird.bird.rect.y < 350:
                 game.show_game_surface()
@@ -44,8 +55,8 @@ while game.running:
                 game.bird.show()
                 game.display.flip()
             game.begin = False
-            ## TODO: End_message
-            #Call here the end game message
+            game.game_over()
+
 
         #Make the bird fall if a command do jump is no given
         if game.bird_climb == False and game.begin == True:
@@ -55,10 +66,11 @@ while game.running:
         if game.bird_climb == True and game.begin == True:
             game.bird.jump()
             climb += 1
-            #Bird will move up for 15 iterations
-            if climb == 13:
+            #Bird will move up for 17 iterations
+            if climb == 17:
                 climb = 0
                 game.bird_climb = False
+
         if game.begin == True:
             game.generate_pipe()
             game.move_game_surface()

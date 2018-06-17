@@ -3,14 +3,13 @@
 import pygame as pg
 import time
 import random
+
 class Game(object):
     #Initialize the pygame module and others atributes
     def __init__(self):
         #Atributes of the pygame settings
         pg.init()
         self.display = pg.display
-        pg.font.init()#Init the font to write in the screen
-        self.font = pg.font.SysFont('Ubuntu Mono', 30)
         self.dimentions = (768,489)
         self.display.set_mode(self.dimentions, 0)
         self.display.set_caption("Flappy Bird")
@@ -19,7 +18,6 @@ class Game(object):
         self.screen = pg.display.get_surface()#get the surface
 
         #Atributes of the game control
-        self.init_message = self.font.render('Press Space to Begin', False, (0, 0, 0))
         self.begin = False
         self.running = True
         self.move = True
@@ -43,14 +41,14 @@ class Game(object):
         self.cloud2 = Cloud(self.screen, 760, 100)
         self.score = Score(self.screen)
 
-        #Creates object Pipe, with opening=120 (space to the bird pass through), x=820
-        self.pipe1 = Pipe(self.screen, 100, 820)
-        self.pipe2 = Pipe(self.screen, 100, 820)
-        self.pipe3 = Pipe(self.screen, 100, 820)
-        self.pipe4 = Pipe(self.screen, 100, 820)
-        self.pipe5 = Pipe(self.screen, 100, 820)
-        self.pipe6 = Pipe(self.screen, 100, 820)
-        self.pipe7 = Pipe(self.screen, 100, 820)
+        #Creates object Pipe, with opening=130 (space to the bird pass through), x=820
+        self.pipe1 = Pipe(self.screen, 130, 820)
+        self.pipe2 = Pipe(self.screen, 130, 820)
+        self.pipe3 = Pipe(self.screen, 130, 820)
+        self.pipe4 = Pipe(self.screen, 130, 820)
+        self.pipe5 = Pipe(self.screen, 130, 820)
+        self.pipe6 = Pipe(self.screen, 130, 820)
+        self.pipe7 = Pipe(self.screen, 130, 820)
         self.pipe_to_show.append(self.pipe1)#First pipe that is showed
         self.pipe_group.add(self.pipe1.pipe_up, self.pipe1.pipe_down)
         self.pipe_list.append(self.pipe2)
@@ -110,15 +108,16 @@ class Game(object):
     #Check if the bird is colliding with the sprite_group that contains the pipes
     def collide(self):
         if pg.sprite.spritecollideany(self.bird.bird, self.pipe_group) != None:
-            x = self.bird.bird.rect.x
-            y = self.bird.bird.rect.y
-            self.bird.bird.image = self.bird.bird_end
-            self.bird.rect = self.bird.bird_end_rect
-            self.bird.rect.x = x
-            self.bird.rect.y = y
             return True
         else:
             return False
+    def end_game(self):
+        x = self.bird.bird.rect.x
+        y = self.bird.bird.rect.y
+        self.bird.bird.image = self.bird.bird_end
+        self.bird.rect = self.bird.bird_end_rect
+        self.bird.rect.x = x
+        self.bird.rect.y = y
 
     def restart(self):
         #Set the bird to your initial position
@@ -147,9 +146,23 @@ class Game(object):
                 self.score.increase()
 
     #Write the code here
-    #def init_message(self):
+    # the iniciate message
 
-    #def end_message(self):
+    def game_start(self):
+        pg.font.init()
+        font= pg.font.Font('fonts/BradBunR.ttf',50)
+        init_mes= font.render(" Press space to start ", True , (175,238,238))
+        self.screen.blit(init_mes, (150, 225))
+
+    #the game over message
+    def game_over(self):
+        pg.font.init()
+        font = pg.font.Font('fonts/BradBunR.ttf',80)
+        font2 = pg.font.Font('fonts/BradBunR.ttf',30) # to change the little text size
+        over_mes = font.render(" GAME OVER ", True , (255,0,0))
+        end_mes = font2.render(" press R to restart or esc to exit", True , (255,255,255))
+        self.screen.blit(over_mes,(170, 150))
+        self.screen.blit(end_mes,(160, 225))
 
 class Initial_Surface():
     def __init__(self, screen):
@@ -276,6 +289,8 @@ class Score(object):
     def increase(self):
         self.score += 1
         self.num_to_show = []
+        #Gets each character of the string
+        #Ex: score 10 = num_list[1] + num_list[0]
         for i in str(self.score):
             self.num_to_show.append(self.num_list[int(i)])
 
