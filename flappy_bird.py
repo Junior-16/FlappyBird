@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-#font: ubuntumono
 import pygame as pg
 import time
 import random
