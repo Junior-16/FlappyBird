@@ -57,7 +57,7 @@ while game.running:
                 game.bird.show()
                 game.display.flip()
             game.begin = False
-            game.game_over()
+            game.game_over() 
 
 
         #Make the bird fall if a command do jump is no given
