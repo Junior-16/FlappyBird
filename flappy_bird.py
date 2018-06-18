@@ -87,6 +87,7 @@ class Game(object):
             pipe = self.pipe_to_show[1]
         except IndexError:
             pipe = self.pipe_to_show[0]
+        #Get the first pipe
         if pipe.pipe_down_rect.x >= 130 or pipe.pipe_down_rect.x <= 192:
             if self.bird.bird_rect.colliderect(pipe.pipe_up_rect) or self.bird.bird_rect.colliderect(pipe.pipe_down_rect):
                 return True
